@@ -9,9 +9,14 @@ namespace FileManagerConsole
 {
 	public abstract class FileManager
 	{
-		public IEnumerable<DirectoryInfo> listOfDirectories;
-		public IEnumerable<FileInfo> listOfFiles;
+		public IEnumerable<DirFileInfo> listOfDirectories;
+		public IEnumerable<DirFileInfo> listOfFiles;
+		protected IOHelper IOHelper;
 
+		public FileManager()
+		{
+			IOHelper = new IOHelper();
+		}
 
 		public void StartIteratingFolders(string[] args)
 		{
@@ -43,7 +48,7 @@ namespace FileManagerConsole
 				else
 				{
 					WriteLine("Please put new path or type 'Exit'  ");
-					newPath = Console.ReadLine().ToLower();
+					newPath = ReadLine().ToLower();
 
 					if (newPath == "exit")
 						return;
@@ -58,7 +63,7 @@ namespace FileManagerConsole
 						{
 							string potentialNewPath = Path.Combine(path, newPath);
 
-							if (Directory.Exists(potentialNewPath))
+							if (IOHelper.DirectoryExists(potentialNewPath))
 								path = potentialNewPath;
 							else
 								path = newPath;
@@ -69,11 +74,12 @@ namespace FileManagerConsole
 			}
 		}
 
+		protected abstract string ReadLine();
+
 		protected abstract ConsoleKeyInfo GetPressedKey();
 
 		private void TabPressed(string path, int position)
 		{
-			var dirInfo = new DirectoryInfo(path);
 			string putString = "";
 
 			if (position < listOfDirectories.Count())
@@ -133,7 +139,7 @@ namespace FileManagerConsole
 
 			if (!String.IsNullOrEmpty(args))
 			{
-				if (!Directory.Exists(args))
+				if (!IOHelper.DirectoryExists(args))
 				{
 					WriteLine("Path {0} doesn't exist", args);
 					return path;
@@ -161,21 +167,21 @@ namespace FileManagerConsole
 
 		private void ListFilesInDiretory(DirectoryInfo dirInfo, ref int fileCount, ref long fileSize)
 		{
-			listOfFiles = dirInfo.EnumerateFiles();
+			listOfFiles = dirInfo.EnumerateFiles().Select(file => new DirFileInfo { Name = file.Name, LastModified = file.LastWriteTime, Size = file.Length });
 			foreach (var file in listOfFiles)
 			{
-				WriteLine("{2}\t{0:n0}\t\t{1}", file.Length, file, file.LastWriteTime.ToString("dd.MM.yyyy HH:mm"));
+				WriteLine("{2}\t{0:n0}\t\t{1}", file.Size, file, file.LastModified.ToString("dd.MM.yyyy HH:mm"));
 				fileCount++;
-				fileSize += file.Length;
+				fileSize += file.Size;
 			}
 		}
 
 		public void ListFoldersInDirectory(DirectoryInfo dirInfo, ref int dirCount)
 		{
-			listOfDirectories = dirInfo.EnumerateDirectories();
+			listOfDirectories = dirInfo.EnumerateDirectories().Select(dir => new DirFileInfo { Name = dir.Name, LastModified = dir.LastWriteTime});
 			foreach (var dir in listOfDirectories)
 			{
-				WriteLine("{0}\t<DIR>\t\t{1}", dir.LastWriteTime.ToString("dd.MM.yyyy HH:mm"), dir);
+				WriteLine("{0}\t<DIR>\t\t{1}", dir.LastModified.ToString("dd.MM.yyyy HH:mm"), dir);
 				dirCount++;
 			}
 		}
@@ -189,5 +195,7 @@ namespace FileManagerConsole
 		{
 			return string.Format(text, args);
 		}
+
+		
 	}
 }

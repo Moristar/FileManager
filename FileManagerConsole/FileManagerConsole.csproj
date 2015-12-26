@@ -42,8 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirFileInfo.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="FileManagerConsole.cs" />
+    <Compile Include="IOHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

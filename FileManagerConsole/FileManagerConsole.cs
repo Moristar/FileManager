@@ -26,5 +26,10 @@ namespace FileManagerConsole
 		{
 			return Console.ReadKey();
 		}
+
+		protected override string ReadLine()
+		{
+			return Console.ReadLine();
+		}
 	}
 }
