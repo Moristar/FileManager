@@ -13,6 +13,11 @@ namespace FileManagerConsole
 		public string Name { get; set; }
 		public DateTime LastModified { get; set; }
 		public long Size { get; set; }
+
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 
 	
