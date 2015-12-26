@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileManagerConsole
 {
@@ -61,7 +58,7 @@ namespace FileManagerConsole
 						}
 						else
 						{
-							string potentialNewPath = Path.Combine(path, newPath);
+							string potentialNewPath = IOHelper.Combine(path, newPath);
 
 							if (IOHelper.DirectoryExists(potentialNewPath))
 								path = potentialNewPath;
@@ -97,7 +94,7 @@ namespace FileManagerConsole
 			if (!CheckFilePath(ref path, ref newPath))
 				return;
 
-			IEnumerable<string> file = File.ReadLines(path);
+			IEnumerable<string> file = IOHelper.ReadFileLines(path);
 			int countOfReadedLines = 0;
 
 			while (file.Count() > countOfReadedLines)
@@ -119,11 +116,11 @@ namespace FileManagerConsole
 		{
 			//  "read read me.txt"
 			newPath = newPath.Substring(5);
-			string potentialNewPath = Path.Combine(path, newPath);
+			string potentialNewPath = IOHelper.Combine(path, newPath);
 
-			if (File.Exists(potentialNewPath))
+			if (IOHelper.FileExists(potentialNewPath))
 				path = potentialNewPath;
-			else if (File.Exists(newPath))
+			else if (IOHelper.FileExists(newPath))
 				path = newPath;
 			else
 			{
@@ -148,15 +145,15 @@ namespace FileManagerConsole
 					path = args;
 			}
 
-			var dirInfo = new DirectoryInfo(path);
+			var dirMgr = new DirectoryManager(path);
 			int dirCount = 0;
 			int fileCount = 0;
 			long fileSize = 0;
 
-			WriteLine("Folder contents:{0} ", dirInfo.FullName);
+			WriteLine("Folder contents:{0} ", dirMgr.FullName);
 
-			ListFoldersInDirectory(dirInfo, ref dirCount);
-			ListFilesInDiretory(dirInfo, ref fileCount, ref fileSize);
+			ListFoldersInDirectory(dirMgr, ref dirCount);
+			ListFilesInDiretory(dirMgr, ref fileCount, ref fileSize);
 
 			WriteLine("\t\t{0} directories", dirCount);
 			WriteLine("\t\t{0} files\t{1:n0} bytes", fileCount, fileSize);
@@ -165,9 +162,9 @@ namespace FileManagerConsole
 			return path;
 		}
 
-		private void ListFilesInDiretory(DirectoryInfo dirInfo, ref int fileCount, ref long fileSize)
+		private void ListFilesInDiretory(DirectoryManager dirInfo, ref int fileCount, ref long fileSize)
 		{
-			listOfFiles = dirInfo.EnumerateFiles().Select(file => new DirFileInfo { Name = file.Name, LastModified = file.LastWriteTime, Size = file.Length });
+			listOfFiles = dirInfo.EnumerateFiles();
 			foreach (var file in listOfFiles)
 			{
 				WriteLine("{2}\t{0:n0}\t\t{1}", file.Size, file, file.LastModified.ToString("dd.MM.yyyy HH:mm"));
@@ -176,9 +173,9 @@ namespace FileManagerConsole
 			}
 		}
 
-		public void ListFoldersInDirectory(DirectoryInfo dirInfo, ref int dirCount)
+		public void ListFoldersInDirectory(DirectoryManager dirInfo, ref int dirCount)
 		{
-			listOfDirectories = dirInfo.EnumerateDirectories().Select(dir => new DirFileInfo { Name = dir.Name, LastModified = dir.LastWriteTime});
+			listOfDirectories = dirInfo.EnumerateDirectories();
 			foreach (var dir in listOfDirectories)
 			{
 				WriteLine("{0}\t<DIR>\t\t{1}", dir.LastModified.ToString("dd.MM.yyyy HH:mm"), dir);
