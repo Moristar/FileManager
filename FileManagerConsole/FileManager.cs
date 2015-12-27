@@ -25,7 +25,7 @@ namespace FileManagerConsole
 				path = args[0];
 
 			bool showDir = true;
-
+			string tabCurrentString = "";
 
 			while (true)
 			{
@@ -33,9 +33,10 @@ namespace FileManagerConsole
 					path = ListDirectoryContents(path);
 
 				var pressedKey = GetPressedKey();
+
 				if (pressedKey.Key == ConsoleKey.Tab)
 				{
-					TabPressed(path, position);
+					tabCurrentString = TabPressed(position);
 					showDir = false;
 					if (position < listOfDirectories.Count() + listOfFiles.Count() - 1)
 						position++;
@@ -44,8 +45,23 @@ namespace FileManagerConsole
 				}
 				else
 				{
-					WriteLine("Please put new path or type 'Exit'  ");
-					newPath = ReadLine().ToLower();
+					while (pressedKey.Key != ConsoleKey.Enter)
+					{
+						if (pressedKey.Key != ConsoleKey.Backspace)
+							tabCurrentString += pressedKey.KeyChar;
+						else if (tabCurrentString.Length > 0)
+						{
+							tabCurrentString = tabCurrentString.Remove(tabCurrentString.Length - 1);
+							var cursorLeft = Console.CursorLeft;
+							Write(" ");
+							Console.SetCursorPosition(cursorLeft, Console.CursorTop);
+						}
+
+						pressedKey = GetPressedKey();
+					}
+
+					newPath = tabCurrentString;
+					tabCurrentString = "";
 
 					if (newPath == "exit")
 						return;
@@ -75,7 +91,7 @@ namespace FileManagerConsole
 
 		protected abstract ConsoleKeyInfo GetPressedKey();
 
-		private void TabPressed(string path, int position)
+		private string TabPressed(int position)
 		{
 			string putString = "";
 
@@ -87,6 +103,8 @@ namespace FileManagerConsole
 			Write("                                                              ");
 			Console.SetCursorPosition(0, Console.CursorTop);
 			Write(putString);
+
+			return putString;
 		}
 
 		private void PrintFile(string path, string newPath)
