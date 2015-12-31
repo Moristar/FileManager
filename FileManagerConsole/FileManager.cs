@@ -8,6 +8,8 @@ namespace FileManagerConsole
 	{
 		public IEnumerable<DirFileInfo> listOfDirectories;
 		public IEnumerable<DirFileInfo> listOfFiles;
+		public List<String> ListOfNamesInDirectory = new List<string>();
+
 		protected IOHelper IOHelper;
 
 		public FileManager()
@@ -28,6 +30,7 @@ namespace FileManagerConsole
 			string tabCurrentString = "";
 			string inputBuffer = "";
 			bool isTabLast = false;
+			int lastSubStringPosition = -1;
 
 			while (true)
 			{
@@ -40,7 +43,7 @@ namespace FileManagerConsole
 				{
 					if (pressedKey.Key == ConsoleKey.Tab)
 					{
-						position = AutocompletePath(position, out tabCurrentString, inputBuffer);
+						position = AutocompletePath(position, out tabCurrentString, inputBuffer, ref lastSubStringPosition);
 						isTabLast = true;
 					}
 					else if (pressedKey.Key == ConsoleKey.Backspace)
@@ -49,6 +52,7 @@ namespace FileManagerConsole
 							inputBuffer = tabCurrentString;
 						inputBuffer = EraseLastInputSymbol(inputBuffer);
 						isTabLast = false;
+						lastSubStringPosition = -1;
 					}
 					else
 					{
@@ -57,10 +61,13 @@ namespace FileManagerConsole
 						inputBuffer += pressedKey.KeyChar;
 						tabCurrentString = inputBuffer;
 						isTabLast = false;
+						lastSubStringPosition = -1;
 					}
 
 					pressedKey = GetPressedKey();
 				}
+
+				position = 0;
 
 				inputBuffer = "";
 				newPath = tabCurrentString;
@@ -102,10 +109,10 @@ namespace FileManagerConsole
 			return tabCurrentString;
 		}
 
-		private int AutocompletePath(int position, out string tabCurrentString, string inputBuffer)
+		private int AutocompletePath(int position, out string tabCurrentString, string inputBuffer, ref int lastSubStringPosition)
 		{
-			tabCurrentString = TabPressed(ref position, inputBuffer);
-			if (position < listOfDirectories.Count() + listOfFiles.Count() - 1)
+			tabCurrentString = TabPressed(ref position, inputBuffer, ref lastSubStringPosition);
+			if (position < ListOfNamesInDirectory.Count() - 1)
 				position++;
 			else
 				position = 0;
@@ -116,34 +123,55 @@ namespace FileManagerConsole
 
 		protected abstract ConsoleKeyInfo GetPressedKey();
 
-		private string TabPressed(ref int position, string inputBuffer)
+		private string TabPressed(ref int position, string inputBuffer, ref int lastSubStringPosition)
 		{
 			string putString = inputBuffer.ToLowerInvariant();
+			string printSpaces = "";
+
+			if (position != 0)
+				printSpaces = new String(' ', ListOfNamesInDirectory[position - 1].Length);
+			else
+				printSpaces = new String(' ', ListOfNamesInDirectory[ListOfNamesInDirectory.Count() - 1].Length);
 
 			if (String.IsNullOrEmpty(putString))
 			{
-				if (position < listOfDirectories.Count())
-					putString = listOfDirectories.ElementAt(position).Name;
-				else if (position < listOfDirectories.Count() + listOfFiles.Count())
-					putString = listOfFiles.ElementAt(position - listOfDirectories.Count()).Name;
+				putString = ListOfNamesInDirectory[position];
 			}
 			else
 			{
-				var unionDFInfo = listOfDirectories.Union(listOfFiles);
-				for (int i = position; i < unionDFInfo.Count(); i++)
+				printSpaces = new String(' ', ListOfNamesInDirectory[lastSubStringPosition + 1].Length);
+				if (lastSubStringPosition == -1 && ListOfNamesInDirectory[lastSubStringPosition+1].StartsWith(putString))
 				{
-					var dfInfo = unionDFInfo.ElementAt(i);
-					if (dfInfo.Name.ToLowerInvariant().StartsWith(putString))
-					{
-						putString = dfInfo.Name;
-						position = i;
-						break;
-					}
+					lastSubStringPosition++;
+					putString = ListOfNamesInDirectory[lastSubStringPosition];
 				}
-
+				else
+				{
+					bool stringFound = false;
+					for (int i = lastSubStringPosition + 1; i < ListOfNamesInDirectory.Count(); i++)
+					{
+						if (ListOfNamesInDirectory[i].StartsWith(putString))
+						{
+							putString = ListOfNamesInDirectory[i];
+							lastSubStringPosition = i;
+							stringFound = true;
+							break;
+						}
+					}
+					if (!stringFound)
+						for (int i = 0; i <= lastSubStringPosition; i++)
+						{
+							if (ListOfNamesInDirectory[i].StartsWith(putString))
+							{
+								putString = ListOfNamesInDirectory[i];
+								lastSubStringPosition = i;
+								break;
+							}
+						}
+				}
 			}
 			Console.SetCursorPosition(0, Console.CursorTop);
-			Write("                                                              ");
+			Write(printSpaces);
 			Console.SetCursorPosition(0, Console.CursorTop);
 			Write(putString);
 
@@ -213,6 +241,8 @@ namespace FileManagerConsole
 
 			WriteLine("Folder contents:{0} ", dirMgr.FullName);
 
+			ListOfNamesInDirectory.Clear();
+
 			ListFoldersInDirectory(dirMgr, ref dirCount);
 			ListFilesInDiretory(dirMgr, ref fileCount, ref fileSize);
 
@@ -231,6 +261,7 @@ namespace FileManagerConsole
 				WriteLine("{2}\t{0:n0}\t\t{1}", file.Size, file, file.LastModified.ToString("dd.MM.yyyy HH:mm"));
 				fileCount++;
 				fileSize += file.Size;
+				ListOfNamesInDirectory.Add(file.Name.ToLowerInvariant());
 			}
 		}
 
@@ -241,6 +272,7 @@ namespace FileManagerConsole
 			{
 				WriteLine("{0}\t<DIR>\t\t{1}", dir.LastModified.ToString("dd.MM.yyyy HH:mm"), dir);
 				dirCount++;
+				ListOfNamesInDirectory.Add(dir.Name.ToLowerInvariant());
 			}
 		}
 
