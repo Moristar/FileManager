@@ -30,7 +30,7 @@ namespace FileManagerConsole
 			string tabCurrentString = "";
 			string inputBuffer = "";
 			bool isTabLast = false;
-			int lastSubStringPosition = -1;
+			int lastSubStringPosition = 0;
 
 			while (true)
 			{
@@ -139,15 +139,16 @@ namespace FileManagerConsole
 			}
 			else
 			{
-				printSpaces = new String(' ', ListOfNamesInDirectory[lastSubStringPosition + 1].Length);
-				if (lastSubStringPosition == -1 && ListOfNamesInDirectory[lastSubStringPosition+1].StartsWith(putString))
-				{
-					lastSubStringPosition++;
-					putString = ListOfNamesInDirectory[lastSubStringPosition];
-				}
-				else
-				{
+				//printSpaces = new String(' ', ListOfNamesInDirectory[lastSubStringPosition].Length);
+				//if (ListOfNamesInDirectory[lastSubStringPosition].StartsWith(putString) && lastSubStringPosition == 0)
+				//{
+				//	putString = ListOfNamesInDirectory[lastSubStringPosition];
+				//	lastSubStringPosition++;
+				//}
+				//else
+				//{
 					bool stringFound = false;
+
 					for (int i = lastSubStringPosition + 1; i < ListOfNamesInDirectory.Count(); i++)
 					{
 						if (ListOfNamesInDirectory[i].StartsWith(putString))
@@ -168,7 +169,7 @@ namespace FileManagerConsole
 								break;
 							}
 						}
-				}
+				//}
 			}
 			Console.SetCursorPosition(0, Console.CursorTop);
 			Write(printSpaces);
