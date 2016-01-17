@@ -82,6 +82,11 @@ namespace FileManagerConsole
 						PrintFile(path, newPath);
 						showDir = false;
 					}
+					else if (newPath.StartsWith("delete "))
+					{
+						DeleteFile(path, newPath);
+						showDir = false;
+					}
 					else
 					{
 						string potentialNewPath = IOHelper.Combine(path, newPath);
@@ -94,6 +99,15 @@ namespace FileManagerConsole
 					}
 				}
 			}
+		}
+
+		private void DeleteFile(string path, string newPath)
+		{
+			if (!CheckFilePath(ref path, ref newPath, "delete"))
+				return;
+
+			IOHelper.DeleteFile(path);
+
 		}
 
 		private string EraseLastInputSymbol(string tabCurrentString)
@@ -134,28 +148,28 @@ namespace FileManagerConsole
 			}
 			else
 			{
-					bool stringFound = false;
+				bool stringFound = false;
 
-					for (int i = lastSubStringPosition + 1; i < ListOfNamesInDirectory.Count(); i++)
+				for (int i = lastSubStringPosition + 1; i < ListOfNamesInDirectory.Count(); i++)
+				{
+					if (ListOfNamesInDirectory[i].StartsWith(putString))
+					{
+						putString = ListOfNamesInDirectory[i];
+						lastSubStringPosition = i;
+						stringFound = true;
+						break;
+					}
+				}
+				if (!stringFound)
+					for (int i = 0; i <= lastSubStringPosition; i++)
 					{
 						if (ListOfNamesInDirectory[i].StartsWith(putString))
 						{
 							putString = ListOfNamesInDirectory[i];
 							lastSubStringPosition = i;
-							stringFound = true;
 							break;
 						}
 					}
-					if (!stringFound)
-						for (int i = 0; i <= lastSubStringPosition; i++)
-						{
-							if (ListOfNamesInDirectory[i].StartsWith(putString))
-							{
-								putString = ListOfNamesInDirectory[i];
-								lastSubStringPosition = i;
-								break;
-							}
-						}
 			}
 			Console.SetCursorPosition(0, Console.CursorTop);
 			Write(printSpaces);
@@ -179,7 +193,7 @@ namespace FileManagerConsole
 
 		private void PrintFile(string path, string newPath)
 		{
-			if (!CheckFilePath(ref path, ref newPath))
+			if (!CheckFilePath(ref path, ref newPath, "read"))
 				return;
 
 			IEnumerable<string> file = IOHelper.ReadFileLines(path);
@@ -200,10 +214,10 @@ namespace FileManagerConsole
 			}
 		}
 
-		private bool CheckFilePath(ref string path, ref string newPath)
+		private bool CheckFilePath(ref string path, ref string newPath, string commandName)
 		{
 			//  "read read me.txt"
-			newPath = newPath.Substring(5);
+			newPath = newPath.Substring(commandName.Length+1);
 			string potentialNewPath = IOHelper.Combine(path, newPath);
 
 			if (IOHelper.FileExists(potentialNewPath))
@@ -277,7 +291,10 @@ namespace FileManagerConsole
 
 		protected virtual string WriteLine(string text, params object[] args)
 		{
-			return string.Format(text, args);
+			if (args == null || args.Length == 0)
+				return text;
+			else
+				return string.Format(text, args);
 		}
 
 		protected virtual string Write(string text, params object[] args)
