@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileManagerConsole", "FileM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileManagerTests", "FileManagerTests\FileManagerTests.csproj", "{0FF1D7AD-85E7-4268-BD44-0F5B8FD88172}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFileManager", "WindowsFileManager\WindowsFileManager.csproj", "{C12C4258-F945-4151-826A-46F823D7A698}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0FF1D7AD-85E7-4268-BD44-0F5B8FD88172}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FF1D7AD-85E7-4268-BD44-0F5B8FD88172}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FF1D7AD-85E7-4268-BD44-0F5B8FD88172}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C12C4258-F945-4151-826A-46F823D7A698}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C12C4258-F945-4151-826A-46F823D7A698}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C12C4258-F945-4151-826A-46F823D7A698}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C12C4258-F945-4151-826A-46F823D7A698}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
