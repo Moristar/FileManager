@@ -126,12 +126,7 @@ namespace FileManagerConsole
 		private string TabPressed(ref int position, string inputBuffer, ref int lastSubStringPosition)
 		{
 			string putString = inputBuffer.ToLowerInvariant();
-			string printSpaces = "";
-
-			if (position != 0)
-				printSpaces = new String(' ', ListOfNamesInDirectory[position - 1].Length);
-			else
-				printSpaces = new String(' ', ListOfNamesInDirectory[ListOfNamesInDirectory.Count() - 1].Length);
+			string printSpaces = new String(' ', MaxLengthListOfNamesInDirectory());
 
 			if (String.IsNullOrEmpty(putString))
 			{
@@ -139,14 +134,6 @@ namespace FileManagerConsole
 			}
 			else
 			{
-				//printSpaces = new String(' ', ListOfNamesInDirectory[lastSubStringPosition].Length);
-				//if (ListOfNamesInDirectory[lastSubStringPosition].StartsWith(putString) && lastSubStringPosition == 0)
-				//{
-				//	putString = ListOfNamesInDirectory[lastSubStringPosition];
-				//	lastSubStringPosition++;
-				//}
-				//else
-				//{
 					bool stringFound = false;
 
 					for (int i = lastSubStringPosition + 1; i < ListOfNamesInDirectory.Count(); i++)
@@ -169,7 +156,6 @@ namespace FileManagerConsole
 								break;
 							}
 						}
-				//}
 			}
 			Console.SetCursorPosition(0, Console.CursorTop);
 			Write(printSpaces);
@@ -177,6 +163,18 @@ namespace FileManagerConsole
 			Write(putString);
 
 			return putString;
+		}
+
+		private int MaxLengthListOfNamesInDirectory()
+		{
+			int length = 0;
+			for (int i = 0; i < ListOfNamesInDirectory.Count(); i++)
+			{
+				if (ListOfNamesInDirectory[i].Length > length)
+					length = ListOfNamesInDirectory[i].Length;
+			}
+
+			return length;
 		}
 
 		private void PrintFile(string path, string newPath)
