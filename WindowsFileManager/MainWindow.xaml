@@ -9,7 +9,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
+        
         <ListView x:Name="listView" HorizontalAlignment="Stretch" Height="Auto" Margin="10,10,10,10" VerticalAlignment="Stretch" Width="auto" Grid.Row="0" ItemsSource="{Binding ViewData}">
             <ListView.View>
                 <GridView>
@@ -21,5 +23,18 @@
             </ListView.View>
         </ListView>
 
+        <!-- 
+            StackPanel - это просто такой контейнер, куда можно складывать другие контролы. Он будет сам по себе адаптироваться под то количество контролов, которое ты положишь в него
+            Заметь, я добавил еще одну строку в главный грид, и стек панель пошла во вторую строку, так что нижняя строка занимает 30 пикселей, а верхняя (со списком) - все оставшееся место (звездочка)
+        -->
+        <StackPanel Grid.Row="1">
+            <!-- 
+                Это простая кнопка. Умеет нажиматься, блокироваться и показывать всякое в себе. Теоретически в свойство Контент можно запихнуть даже видео, 
+                но на практике там обычно текст и иногда картинка.
+                Команда OnReadDataCommand - это обработчик нажатия кнопки, но сделан не напрямую а через Биндинг, то есть снова логика нажатия кнопки не привязана жестко к самой кнопке 
+                сама команда должна быть во ViewModel, там же, где и биндинги данных (FileDirViewModel.cs). Идем смотреть вью модель!
+            -->
+            <Button Content="Кнопка по которой надо вычитывать данные" Margin="10,0,10,0" Command="{Binding OnReadDataCommand}" />
+        </StackPanel>
     </Grid>
 </Window>
