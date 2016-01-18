@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace WindowsFileManager
 {
 	public class FileDirViewModel
 	{
-		public List<FileDirModel> ViewData { get; set; }
+		public ObservableCollection<FileDirModel> ViewData { get; set; }
 
 		/// <summary>
 		/// Команда с таким же именем как и то, что мы забиндили во вью (см. MainWindow.xaml).
@@ -21,12 +22,14 @@ namespace WindowsFileManager
 
 		public FileDirViewModel()
 		{
-			ViewData = new List<FileDirModel>();
+			ViewData = new ObservableCollection<FileDirModel>();
 
 			// Здесь мы инициализируем нашу команду нажатия кнопки, чтобы по нажати. оной что-то происходило. Если забыть это сделать, то будет эксепшен! Почем именно так - смотри ниже.
-			OnReadDataCommand = new MyCommand(this); 
+			OnReadDataCommand = new MyCommand(this);
+		}
 
-			// Последующие три строчки нужно будет вынести (см. ниже)
+		public void GenerateModel()
+		{
 			ViewData.Add(new FileDirModel { Name = "Folder1", Type = "Dir", Size = 0, LastModificationDate = DateTime.Now });
 			ViewData.Add(new FileDirModel { Name = "Folder2", Type = "Dir", Size = 21230, LastModificationDate = DateTime.Now });
 			ViewData.Add(new FileDirModel { Name = "File1", Type = "txt", Size = 3000, LastModificationDate = DateTime.Now });
@@ -69,7 +72,8 @@ namespace WindowsFileManager
 
 			// Для того, чтобы убедиться, что метод все же работает и вызывается, я вставил вывод простого Мессадж Бокса. Впоследствии его стоит стереть, потому что это плохая идея - смешивать слои
 			// Мессадж Бокс относится к слою представления (вью), а у нас тут как бы логика ;)
-			System.Windows.MessageBox.Show("Удали меня!");
+			//System.Windows.MessageBox.Show("Удали меня!");
+			_Model.GenerateModel();
 
 		}
 	}
