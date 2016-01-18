@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,8 @@ using System.Windows.Input;
 
 namespace WindowsFileManager
 {
-	public class FileDirViewModel
+	public class FileDirViewModel : INotifyPropertyChanged
+
 	{
 		public ObservableCollection<FileDirModel> ViewData { get; set; }
 
@@ -24,12 +26,24 @@ namespace WindowsFileManager
 		{
 			ViewData = new ObservableCollection<FileDirModel>();
 
+			ViewData.Add(new FileDirModel { Name = "FolderTest", Type = "Dir", Size = 0, LastModificationDate = DateTime.Now });
+
 			// Здесь мы инициализируем нашу команду нажатия кнопки, чтобы по нажати. оной что-то происходило. Если забыть это сделать, то будет эксепшен! Почем именно так - смотри ниже.
 			OnReadDataCommand = new MyCommand(this);
 		}
 
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		private void OnPropertyChanged(string name)
+		{
+			if (PropertyChanged != null)
+				PropertyChanged(this, new PropertyChangedEventArgs(name));
+		}
+
 		public void GenerateModel()
 		{
+			ViewData = new ObservableCollection<FileDirModel>();
+			OnPropertyChanged("ViewData");
 			ViewData.Add(new FileDirModel { Name = "Folder1", Type = "Dir", Size = 0, LastModificationDate = DateTime.Now });
 			ViewData.Add(new FileDirModel { Name = "Folder2", Type = "Dir", Size = 21230, LastModificationDate = DateTime.Now });
 			ViewData.Add(new FileDirModel { Name = "File1", Type = "txt", Size = 3000, LastModificationDate = DateTime.Now });
