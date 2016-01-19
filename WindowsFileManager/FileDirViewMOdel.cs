@@ -21,6 +21,7 @@ namespace WindowsFileManager
 		/// Важно заметить, что все что ты биндишь должно быть public, иначе вьюха не сможет достучаться до команды и будет молчать как партизан при нажатии кнопки (или выводе данных)
 		/// </summary>
 		public ICommand OnReadDataCommand { get; set; }
+		public ICommand OnCleanDataCommand { get; set; }
 
 		public FileDirViewModel()
 		{
@@ -29,7 +30,8 @@ namespace WindowsFileManager
 			ViewData.Add(new FileDirModel { Name = "FolderTest", Type = "Dir", Size = 0, LastModificationDate = DateTime.Now });
 
 			// Здесь мы инициализируем нашу команду нажатия кнопки, чтобы по нажати. оной что-то происходило. Если забыть это сделать, то будет эксепшен! Почем именно так - смотри ниже.
-			OnReadDataCommand = new MyCommand(this);
+			OnReadDataCommand = new MyReadCommand(this);
+			OnCleanDataCommand = new MyCleanCommand(this);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -42,11 +44,16 @@ namespace WindowsFileManager
 
 		public void GenerateModel()
 		{
-			ViewData = new ObservableCollection<FileDirModel>();
 			OnPropertyChanged("ViewData");
 			ViewData.Add(new FileDirModel { Name = "Folder1", Type = "Dir", Size = 0, LastModificationDate = DateTime.Now });
 			ViewData.Add(new FileDirModel { Name = "Folder2", Type = "Dir", Size = 21230, LastModificationDate = DateTime.Now });
 			ViewData.Add(new FileDirModel { Name = "File1", Type = "txt", Size = 3000, LastModificationDate = DateTime.Now });
+		}
+
+		public void CleanModel()
+		{
+			ViewData = new ObservableCollection<FileDirModel>();
+			OnPropertyChanged("ViewData");
 		}
 	}
 
@@ -54,11 +61,11 @@ namespace WindowsFileManager
 	/// Вот и наша реализация интерфейса ICommand.
 	/// Ничего особого она не делает, просто говорит активна ли команда или нет ну и собственно вызывает метод, который выполняет непосредственно действия
 	/// </summary>
-	class MyCommand : ICommand
+	class MyReadCommand : ICommand
 	{
 		private FileDirViewModel _Model;
 
-		public MyCommand(FileDirViewModel model)
+		public MyReadCommand(FileDirViewModel model)
 		{
 			// Конструктор в таком классе необязателен, но мы сейчас пишем очень конкретную реализацию интерфейса ICommand, которая будет очень конкретное действие
 			// А именно - заполнять список данными. Для этого мы должны на время передать управление нашим кодом этому классу Команды. Мы делаем это - передав нашу Вью модель как параметр и сохранив ее.
@@ -89,6 +96,28 @@ namespace WindowsFileManager
 			//System.Windows.MessageBox.Show("Удали меня!");
 			_Model.GenerateModel();
 
+		}
+	}
+
+	class MyCleanCommand : ICommand
+	{
+		private FileDirViewModel _Model;
+
+		public MyCleanCommand(FileDirViewModel model)
+		{
+			_Model = model;
+		}
+
+		public event EventHandler CanExecuteChanged;
+
+		public bool CanExecute(object parameter)
+		{
+			return true;
+		}
+
+		public void Execute(object parameter)
+		{
+			_Model.CleanModel();
 		}
 	}
 }

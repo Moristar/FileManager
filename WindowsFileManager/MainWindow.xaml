@@ -9,7 +9,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
         
         <ListView x:Name="listView" HorizontalAlignment="Stretch" Height="Auto" Margin="10,10,10,10" VerticalAlignment="Stretch" Width="auto" Grid.Row="0" ItemsSource="{Binding ViewData}">
@@ -35,6 +35,7 @@
                 сама команда должна быть во ViewModel, там же, где и биндинги данных (FileDirViewModel.cs). Идем смотреть вью модель!
             -->
             <Button Content="Кнопка по которой надо вычитывать данные" Margin="10,0,10,0" Command="{Binding OnReadDataCommand}" />
+            <Button Content="Кнопка по которой надо все чистить" Margin="10,10,10,0" Command="{Binding OnCleanDataCommand}" />
         </StackPanel>
     </Grid>
 </Window>
