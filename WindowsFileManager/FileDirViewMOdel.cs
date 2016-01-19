@@ -30,8 +30,10 @@ namespace WindowsFileManager
 			ViewData.Add(new FileDirModel { Name = "FolderTest", Type = "Dir", Size = 0, LastModificationDate = DateTime.Now });
 
 			// Здесь мы инициализируем нашу команду нажатия кнопки, чтобы по нажати. оной что-то происходило. Если забыть это сделать, то будет эксепшен! Почем именно так - смотри ниже.
-			OnReadDataCommand = new MyReadCommand(this);
-			OnCleanDataCommand = new MyCleanCommand(this);
+
+			// Два варианта использования универсального класса команды - один раз с Action, второй - с делегатом. Смотри ниже сам класс.
+			OnReadDataCommand = new MyBasicCommand(new Action(GenerateModel));
+			OnCleanDataCommand = new MyBasicCommand(new MyBasicCommand.MyCommandHandlerDelegate(CleanModel));
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -54,6 +56,44 @@ namespace WindowsFileManager
 		{
 			ViewData = new ObservableCollection<FileDirModel>();
 			OnPropertyChanged("ViewData");
+		}
+	}
+
+
+	public class MyBasicCommand : ICommand
+	{
+		Action _CommandHandlerAction; // Action - это по сути указатель на функцию, которая ничего не принимает и ничего не возвращает. Ее сделали стандартным типом данных.
+
+		public delegate void MyCommandHandlerDelegate(); // Delegate - это ключевое слово, которое позволяет описывать делегаты. Делегаты - это тоже указатели на функции, но их можно описывать как угодно
+														 // Разницы между Action и нашим MyCommandHandlerDelegate нет никакой - оба указатели на функции, которые ничего не принимают и не возвращают
+														 // Просто раньше были только делегаты, а потом позже добавили Action чисто для удобства. Но оба - указатели на функции
+		MyCommandHandlerDelegate _CommandHandlerDelegate;   // Переменная нашего типа MyCommandHandlerDelegate - просто альтернативная имплементация переменной типа Action - чисто для сравнения.
+
+		public event EventHandler CanExecuteChanged;
+
+
+		// Далее идут два конструктора. По сути своей они одинаковы - получают указатель на метод и сохранют его. Сделано чтобы можно было попробовать оба варианта.
+		// На практике сейчас аще всего используют Action, потому что проще и короче писать и не надо каждый раз писать свои делегаты.
+		public MyBasicCommand(Action commandHandlerAction) 
+		{
+			_CommandHandlerAction = commandHandlerAction;
+		}
+
+		public MyBasicCommand(MyCommandHandlerDelegate commandHandlerDelegate)
+		{
+			_CommandHandlerDelegate = commandHandlerDelegate;
+		}
+
+		public bool CanExecute(object parameter) { return true; }
+
+
+		public void Execute(object parameter)
+		{
+			// Здесь будем вызывать один или другой хэндлер, в зависимости от того какой конструктор мы вызвали. Для команды генерации данных воспользуемся одним, а для очистки - другим
+			if (_CommandHandlerAction != null)
+				_CommandHandlerAction();
+			else if (_CommandHandlerDelegate != null)
+				_CommandHandlerDelegate();
 		}
 	}
 
