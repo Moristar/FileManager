@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,9 @@ namespace WindowsFileManager
 			// Здесь мы инициализируем нашу команду нажатия кнопки, чтобы по нажати. оной что-то происходило. Если забыть это сделать, то будет эксепшен! Почем именно так - смотри ниже.
 
 			// Два варианта использования универсального класса команды - один раз с Action, второй - с делегатом. Смотри ниже сам класс.
-			OnReadDataCommand = new MyBasicCommand(new Action(GenerateModel));
+
+			//OnReadDataCommand = new MyBasicCommand(new Action(GenerateModel));
+			OnReadDataCommand = new MyBasicCommand(new Action(ReadDir));
 			OnCleanDataCommand = new MyBasicCommand(new MyBasicCommand.MyCommandHandlerDelegate(CleanModel));
 		}
 
@@ -56,6 +59,27 @@ namespace WindowsFileManager
 		{
 			ViewData = new ObservableCollection<FileDirModel>();
 			OnPropertyChanged("ViewData");
+		}
+
+		public void ReadDir()
+		{
+			string path = "..\\..";
+			var dirFileInfo = new DirectoryInfo(path);
+
+			DirectoryInfo[] dirInfo = dirFileInfo.GetDirectories();
+
+			FileInfo[] fileInfo = dirFileInfo.GetFiles("*.*");
+			
+			OnPropertyChanged("ViewData");
+			foreach (DirectoryInfo d in dirInfo)
+			{
+				ViewData.Add(new FileDirModel { Name = d.Name, Type = d.Extension.ToString(), LastModificationDate = d.LastWriteTime });
+			}
+			foreach (FileInfo f in fileInfo)
+			{
+				ViewData.Add(new FileDirModel { Name = f.Name, Type = f.Extension.ToString(), Size = f.Length, LastModificationDate = f.LastWriteTime });
+			}
+
 		}
 	}
 
