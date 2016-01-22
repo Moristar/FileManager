@@ -10,8 +10,14 @@ using System.Windows.Input;
 
 namespace WindowsFileManager
 {
-	public class FileDirViewModel : INotifyPropertyChanged
+	// 22.01.2016
+	// Новый интерфейс, который я упоминал раньше. Декларирует вью модель для нашего вью
+	public interface IFileDirView : INotifyPropertyChanged
+	{
+		ICommand OnListViewDoubleClick { get; set; }
+	}
 
+	public class FileDirViewModel : IFileDirView
 	{
 		public ObservableCollection<FileDirModel> ViewData { get; set; }
 
@@ -23,6 +29,10 @@ namespace WindowsFileManager
 		/// </summary>
 		public ICommand OnReadDataCommand { get; set; }
 		public ICommand OnCleanDataCommand { get; set; }
+
+		// 22.01.2016
+		// Новая команда
+		public ICommand OnListViewDoubleClick { get; set; }
 
 		public FileDirViewModel()
 		{
@@ -37,6 +47,11 @@ namespace WindowsFileManager
 			//OnReadDataCommand = new MyBasicCommand(new Action(GenerateModel));
 			OnReadDataCommand = new MyBasicCommand(ReadDir);
 			OnCleanDataCommand = new MyBasicCommand(() => ViewData.Clear());
+
+			// 22.01.2016
+			// Поскольку команда с параметром, мне нужно было написать новый класс-обработчик команд с параметром. В принципе то же самое, однако теперь он принимает указатели на 
+			// функции вида void func(object), т.е. с параметром типа обджект.
+			OnListViewDoubleClick = new MyBasicParameterCommand(OnDoubleClickItem);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -47,6 +62,17 @@ namespace WindowsFileManager
 				PropertyChanged(this, new PropertyChangedEventArgs(name));
 		}
 
+		// 22.01.2016
+		// Реализация метода чисто тестовая - увидеть, что параметр передается. Твое ЗАДАНИЕ заключается в том, чтобы очищать список папок и файлов и показывать содержимое той папки, на которую
+		// щелкнули. Файлы игнорируй пока.
+		public void OnDoubleClickItem(object item)
+		{
+			// 22.01.2016
+			// Собственно айтем - это то, что мы передали как параметр в нашу команду. Как ты видишь - это все тот же объект FileDirModel, который ты создаешь в методе ReadDir. 
+			// Что мы туда отправляем - то и получаем обратно.
+			FileDirModel fdItem = item as FileDirModel;
+			System.Windows.MessageBox.Show(fdItem.Name);
+		}
 
 		public void ReadDir()
 		{
@@ -72,6 +98,35 @@ namespace WindowsFileManager
 		}
 	}
 
+	// 22.01.2016
+	// Новый класс для обработки команд с параметром. Почти такой же как и обычный с парой изменнеий
+	public class MyBasicParameterCommand : ICommand
+	{
+		// 22.01.2016
+		// Теперь у нас не просто экшен, а экшен с параметром обджект
+		Action<object> _CommandHandlerAction;
+
+		public event EventHandler CanExecuteChanged;
+
+		public MyBasicParameterCommand(Action<object> commandHandlerAction)
+		{
+			_CommandHandlerAction = commandHandlerAction;
+		}
+
+		// 22.01.2016
+		// А здесь мы проверяем, что параметр не нулл, т.е. мы кликнули на чем-то существующем. Во вью мы вызывем этот метод, прежде чем вызывать сам Экзекьют
+		// Теперь все - возвращайся во вью модель и пиши хождение по папкам. Удачи!
+		public bool CanExecute(object parameter)
+		{
+			return parameter != null;
+		}
+
+		public void Execute(object parameter)
+		{
+			if (_CommandHandlerAction != null)
+				_CommandHandlerAction(parameter);
+		}
+	}
 
 	public class MyBasicCommand : ICommand
 	{
