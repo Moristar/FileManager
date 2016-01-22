@@ -28,7 +28,7 @@ namespace WindowsFileManager
 		{
 			ViewData = new ObservableCollection<FileDirModel>();
 
-			ViewData.Add(new FileDirModel { Name = "FolderTest", Type = "Dir", Size = 0, LastModificationDate = DateTime.Now });
+			ReadDir();
 
 			// Здесь мы инициализируем нашу команду нажатия кнопки, чтобы по нажати. оной что-то происходило. Если забыть это сделать, то будет эксепшен! Почем именно так - смотри ниже.
 
@@ -56,11 +56,13 @@ namespace WindowsFileManager
 			DirectoryInfo[] dirInfo = dirFileInfo.GetDirectories();
 
 			FileInfo[] fileInfo = dirFileInfo.GetFiles("*.*");
-			
+
+			ViewData.Add(new FileDirModel { Name = "...", Type = null, LastModificationDate = null, Size = null });
+
 			OnPropertyChanged("ViewData");
 			foreach (DirectoryInfo d in dirInfo)
 			{
-				ViewData.Add(new FileDirModel { Name = d.Name, Type = d.Extension.ToString(), LastModificationDate = d.LastWriteTime });
+				ViewData.Add(new FileDirModel { Name = d.Name, Type = "<DIR>", Size = null, LastModificationDate = d.LastWriteTime });
 			}
 			foreach (FileInfo f in fileInfo)
 			{

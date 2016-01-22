@@ -11,8 +11,8 @@ namespace WindowsFileManager
 	{
 		public string Name { get; set; }
 		public string Type { get; set; }
-		public long Size { get; set; }
-		public DateTime LastModificationDate { get; set; }
+		public long? Size { get; set; }
+		public DateTime? LastModificationDate { get; set; }
 	
 	}
 }
